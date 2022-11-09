@@ -1,0 +1,151 @@
+import { LightningElement, track } from 'lwc';
+import { createRecord } from 'lightning/uiRecordApi';
+import { ShowToastEvent} from 'lightning/platformShowToastEvent'
+
+export default class MortgageCalculator extends LightningElement {
+
+    //Properties
+    amount
+    rate
+    term
+    paymentFreq
+
+    show 
+
+    //Result object for UI
+    @track result = {
+        yearlyPayment: null,
+        partialAmount: null,
+        partialPmtType: null,
+    }
+
+    get options() {
+        return [
+            { label: 'Monthly', value: 'Monthly' },
+            { label: 'Semi-monthly', value: 'Semimonthly' },
+            { label: 'Weekly', value: 'Weekly' },
+            { label: 'Bi-weekly', value: 'Biweekly' },
+        ]
+    }
+
+    comboboxHandler(event) {
+        console.log(`Selected value; ${event.target.label}`)
+        this.paymentFreq = event.target.value
+    }
+
+    //Event handling for onchange inputs
+    onChangeAmount(event) {
+
+        this.amount = event.target.value
+        console.log(`This amount is : ${this.amount}`)
+
+    }
+
+    onChangeInterest(event) {
+        this.rate = event.target.value
+    }
+
+    onChangeAmort(event) {
+        this.term = event.target.value
+    }
+
+    //Buttons 
+    getResultHandler() {
+
+
+        if (this.amount != null && this.rate != null && this.paymentFreq != null && this.term != null) {
+            console.log('they all have values, please proceed')
+
+            //Making sure result object is empty
+            this.result = {}
+            this.show=!this.show
+
+            const event = new ShowToastEvent({
+                title: 'Success',
+                message:'Successfully calculated',
+                variant: 'Success',
+                mode: 'Sticky',
+            })
+            this.dispatchEvent(event)
+
+            let yearlyPayment
+            let monthlyRate = Number(this.rate) / 100 / 12 //calulcaute monthly interest rate
+            let numMonths = Number(this.term) * 12 // calculate the number of months . for example 10 years * 12 => 120 months
+
+
+            //Calculate monthly paymnet
+            let monthlyPayment = Number(this.amount) *
+                (
+                    (monthlyRate * Math.pow(1 + monthlyRate, numMonths)) /
+                    (Math.pow(1 + monthlyRate, numMonths) - 1)
+                )
+
+            //Calculation depending frequency (monthly, bimonthly, weekly, biweekly)
+            if(this.paymentFreq === 'Monthly'){
+
+                monthlyPayment = monthlyPayment.toFixed(2)
+                yearlyPayment = (monthlyPayment * numMonths).toFixed(2)
+
+                this.result = {
+                    yearlyPayment: yearlyPayment,
+                    partialAmount: monthlyPayment,
+                    partialPmtType: 'Monthly',
+                }
+
+            }else if(this.paymentFreq === 'Semimonthly'){
+
+                let semiMonthPmt = (monthlyPayment / 2).toFixed(2)
+                yearlyPayment = (monthlyPayment * numMonths ).toFixed(2)
+
+                this.result = {
+                    yearlyPayment: yearlyPayment,
+                    partialAmount: semiMonthPmt,
+                    partialPmtType: 'Semimonthly',
+                }
+
+            }else if(this.paymentFreq === 'Weekly'){
+
+                let weekltPmt = ((monthlyPayment * 12)/52).toFixed(2)
+                yearlyPayment = (monthlyPayment * numMonths ).toFixed(2)
+
+                this.result = {
+                    yearlyPayment: yearlyPayment,
+                    partialAmount: weekltPmt,
+                    partialPmtType: 'Weekly',
+                }
+
+            }else if(this.paymentFreq === 'Biweekly'){
+
+                let biweeklyPmt = ((monthlyPayment * 12)/26).toFixed(2)
+                yearlyPayment = (monthlyPayment * numMonths ).toFixed(2)
+
+                this.result = {
+                    yearlyPayment: yearlyPayment,
+                    partialAmount: biweeklyPmt,
+                    partialPmtType: 'Biweekly',
+                }
+
+            }
+            console.log(this.result)
+
+
+        } else {
+            console.log('at least one property does not have value')
+            const event = new ShowToastEvent({
+                title: 'Warning',
+                message:'No values given!',
+                variant: 'Warning',
+                mode: 'pester',
+            })
+            this.dispatchEvent(event)
+        }
+        
+        
+
+    }
+
+    saveResultHandler() {
+        console.log('get button is clicked')
+    }
+
+}
