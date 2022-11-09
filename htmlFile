@@ -1,0 +1,39 @@
+<template>
+    <lightning-card title="Mortgage Calculator" icon-name="action:refresh">
+        <div class='slds-var-m-around_medium'>
+            <lightning-input type="number" name="MortAmount" label="Mortgage Amount:($)" placeholder="e.g. $10000"
+                required onchange={onChangeAmount}>
+            </lightning-input>
+        </div>
+        <div class='slds-var-m-around_medium'>
+            <lightning-input type="number" step="any" name="Rate" label="Interest Rate:(%)" placeholder="e.g. 2.5%" required
+                onchange={onChangeInterest}>
+            </lightning-input>
+        </div>
+        <div class='slds-var-m-around_medium'>
+            <lightning-input type="number" name="Amore" label="Amortization:(years)" placeholder="e.g. 2 years" required
+                onchange={onChangeAmort}>
+            </lightning-input>
+        </div>
+        <div class='slds-var-m-around_medium'>
+            <lightning-combobox options={options} placeholder="Select Frequency" label="Payment Frequency:" required
+                onchange={comboboxHandler}>
+            </lightning-combobox>
+        </div>
+        <div>
+            <lightning-button label="Get the Result!" variant="Neutral" onclick={getResultHandler}
+                class="slds-m-left_x-small">
+            </lightning-button>
+
+            <lightning-button label="Save the Result!" variant="Neutral" onclick={saveResultHandler}
+                class="slds-m-left_x-small">
+            </lightning-button>
+        </div>
+        <template if:true={show}>
+            <div class="slds-var-m-around_large">
+            <p>Overall Payment:   <strong>{result.yearlyPayment}$</strong></p> 
+            <p>{result.partialPmtType}:   <strong>{result.partialAmount}$</strong></p> 
+            </div>
+        </template>    
+    </lightning-card>
+</template>
