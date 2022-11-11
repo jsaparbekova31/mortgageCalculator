@@ -1,6 +1,7 @@
-import { LightningElement, track } from 'lwc';
-import { createRecord } from 'lightning/uiRecordApi';
+import { LightningElement} from 'lwc';
 import { ShowToastEvent} from 'lightning/platformShowToastEvent'
+import createMortHistory from '@salesforce/apex/mortgageHistoryController.createMortHistory'
+import getRecords from '@salesforce/apex/mortgageHistoryController.getRecords'
 
 export default class MortgageCalculator extends LightningElement {
 
@@ -13,7 +14,7 @@ export default class MortgageCalculator extends LightningElement {
     show 
 
     //Result object for UI
-    @track result = {
+    result = {
         yearlyPayment: null,
         partialAmount: null,
         partialPmtType: null,
@@ -22,9 +23,9 @@ export default class MortgageCalculator extends LightningElement {
     get options() {
         return [
             { label: 'Monthly', value: 'Monthly' },
-            { label: 'Semi-monthly', value: 'Semimonthly' },
+            { label: 'Semi-monthly', value: 'Semi-monthly' },
             { label: 'Weekly', value: 'Weekly' },
-            { label: 'Bi-weekly', value: 'Biweekly' },
+            { label: 'Bi-weekly', value: 'Bi-weekly' },
         ]
     }
 
@@ -92,7 +93,7 @@ export default class MortgageCalculator extends LightningElement {
                     partialPmtType: 'Monthly',
                 }
 
-            }else if(this.paymentFreq === 'Semimonthly'){
+            }else if(this.paymentFreq === 'Semi-monthly'){
 
                 let semiMonthPmt = (monthlyPayment / 2).toFixed(2)
                 yearlyPayment = (monthlyPayment * numMonths ).toFixed(2)
@@ -100,7 +101,7 @@ export default class MortgageCalculator extends LightningElement {
                 this.result = {
                     yearlyPayment: yearlyPayment,
                     partialAmount: semiMonthPmt,
-                    partialPmtType: 'Semimonthly',
+                    partialPmtType: 'Semi-monthly',
                 }
 
             }else if(this.paymentFreq === 'Weekly'){
@@ -114,7 +115,7 @@ export default class MortgageCalculator extends LightningElement {
                     partialPmtType: 'Weekly',
                 }
 
-            }else if(this.paymentFreq === 'Biweekly'){
+            }else if(this.paymentFreq === 'Bi-weekly'){
 
                 let biweeklyPmt = ((monthlyPayment * 12)/26).toFixed(2)
                 yearlyPayment = (monthlyPayment * numMonths ).toFixed(2)
@@ -122,7 +123,7 @@ export default class MortgageCalculator extends LightningElement {
                 this.result = {
                     yearlyPayment: yearlyPayment,
                     partialAmount: biweeklyPmt,
-                    partialPmtType: 'Biweekly',
+                    partialPmtType: 'Bi-weekly',
                 }
 
             }
@@ -145,7 +146,53 @@ export default class MortgageCalculator extends LightningElement {
     }
 
     saveResultHandler() {
-        console.log('get button is clicked')
+        console.log('save button is clicked')
+        if (this.amount != null 
+            && this.rate != null 
+            && this.paymentFreq != null 
+            && this.term != null 
+            && this.result.yearlyPayment != null 
+            && this.result.partialAmount != null
+            && this.result.partialPmtType != null
+            ) {
+
+              
+                createMortHistory({
+                amount: parseInt(this.amount), 
+                rate: parseFloat(this.rate), 
+                amortization: parseFloat(this.term),
+                paymentFreq: this.paymentFreq,
+                partialPmt: parseFloat(this.result.partialAmount),
+                totalPmt: parseFloat(this.result.partialAmount)})
+
+                .then(response => {
+                    console.log(response)
+
+                    const event = new ShowToastEvent({
+                        title: 'Success',
+                        message:'Record successfully created!',
+                        variant: 'Success',
+                        mode: 'Sticky',
+                    })
+                    this.dispatchEvent(event)
+
+                })
+                .catch(error => {
+                    console.log('the error happened', error)
+                })
+
+        } else{
+            const event = new ShowToastEvent({
+                title: 'Warning',
+                message:'No values given!',
+                variant: 'Warning',
+                mode: 'pester',
+            })
+            this.dispatchEvent(event)
+    }
     }
 
+
+    
 }
+
