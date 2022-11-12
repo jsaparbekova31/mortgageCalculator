@@ -1,5 +1,7 @@
 <template>
     <lightning-card title="Mortgage Calculator" icon-name="action:refresh">
+        <div class="slds-grid slds-gutters"> 
+  <div class="slds-col slds-size_2-of-6">
         <div class='slds-var-m-around_medium'>
             <lightning-input type="number" name="MortAmount" label="Mortgage Amount:($)" placeholder="e.g. $10000"
                 required onchange={onChangeAmount}>
@@ -29,11 +31,35 @@
                 class="slds-m-left_x-small">
             </lightning-button>
         </div>
+    </div>
+        <div class="slds-col slds-size_4-of-6">
+            <!-- Placing child component and passing values -->
+            <template if:true={chartConfiguration}>
+                <c-chart chart-config={chartConfiguration}></c-chart>
+            </template>
+        </div>
+    </div>
         <template if:true={show}>
             <div class="slds-var-m-around_large">
             <p>Overall Payment:   <strong>{result.yearlyPayment}$</strong></p> 
             <p>{result.partialPmtType}:   <strong>{result.partialAmount}$</strong></p> 
             </div>
+          
         </template>    
+    </lightning-card>
+    <lightning-card>
+        <template if:true={getMortgageRecord.data}>
+            <template for:each={getMortgageRecord.data} for:item="mortgage"> 
+                <div key={mortgage.id}>
+                    <p><strong>Name: {mortgage.Name}</strong></p>
+                    <p><strong>Mortgage Amount: {mortgage.Mortgage_amount__c}</strong></p>
+                    <p><strong>Interest Rate: {mortgage.Interest_rate__c}</strong></p>
+                    <p><strong>Amortization: {mortgage.Amortization__c}</strong></p>
+                    <p><strong>Payment Frequency: {mortgage.Payment_frequency__c}</strong></p>
+                    <p><strong>Partial Payment: {mortgage.Partial_payment__c}</strong></p>
+                    <p><strong>Total amount: {mortgage.Total_amount__c}</strong></p> 
+                </div>
+            </template>
+        </template>
     </lightning-card>
 </template>
