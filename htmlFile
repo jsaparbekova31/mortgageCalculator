@@ -47,19 +47,39 @@
           
         </template>    
     </lightning-card>
-    <lightning-card>
-        <template if:true={getMortgageRecord.data}>
-            <template for:each={getMortgageRecord.data} for:item="mortgage"> 
-                <div key={mortgage.id}>
-                    <p><strong>Name: {mortgage.Name}</strong></p>
-                    <p><strong>Mortgage Amount: {mortgage.Mortgage_amount__c}</strong></p>
-                    <p><strong>Interest Rate: {mortgage.Interest_rate__c}</strong></p>
-                    <p><strong>Amortization: {mortgage.Amortization__c}</strong></p>
-                    <p><strong>Payment Frequency: {mortgage.Payment_frequency__c}</strong></p>
-                    <p><strong>Partial Payment: {mortgage.Partial_payment__c}</strong></p>
-                    <p><strong>Total amount: {mortgage.Total_amount__c}</strong></p> 
-                </div>
-            </template>
-        </template>
-    </lightning-card>
+    <div class="slds-m-top_medium">
+        <lightning-card>
+            <div class="slds-grid slds-gutters slds-wrap slds-var-p-horizontal_large">
+                <template if:true={getMortgageRecord.data}>
+                    <template for:each={getMortgageRecord.data} for:item="record">
+                        <div class="block slds-col slds-m-vertical_medium slds-medium-size_4-of-12 slds-large-size_3-of-12"
+                            key={record.id}>
+                            <div class="slds-box"
+                                style="border-radius: 5pt; box-shadow: 5px 5px 5px rgb(194, 193, 193)">
+                                <div class="slds-text-heading_medium"><strong>{record.Name}</strong></div>
+                                <div class="slds-text-heading_small">Mortgage Amount: <strong
+                                        style="color: rgb(128, 115, 0)">${record.Mortgage_amount__c}</strong></div>
+                                <div class="slds-text-heading_small">Interest Rate: <strong
+                                        style="color: rgb(241, 47, 21)">{record.Interest_rate__c}%</strong></div>
+                                <div class="slds-text-heading_small">Amortization: <strong
+                                        style="color: rgb(159, 21, 172)">{record.Amortization__c} years</strong></div>
+                                <div class="slds-text-heading_small"> Payment <strong style="color: green">
+                                        ${record.Partial_payment__c} {record.Payment_frequency__c}</strong></div>
+                                <div class="slds-text-heading_small">Overall Payment: <strong style="color: green">$
+                                        {record.Total_amount__c}</strong></div>
+                                <div class="slds-align_absolute-center slds-var-p-around_medium">
+                                    <lightning-button-group>
+                                        <lightning-button label="Visit" icon-name="action:following"
+                                            onclick={onVisitHandler}></lightning-button>
+                                        <lightning-button label="Delete" value={record.id} icon-name="action:delete"
+                                            onclick={onDeleteHandler}></lightning-button>
+                                    </lightning-button-group>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </lightning-card>
+    </div>
 </template>
